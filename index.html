@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>오늘 뭐 먹지?</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+      background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+      color: #333;
+      padding: 20px;
+    }
+    .card {
+      background: #fff;
+      border-radius: 24px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+      padding: 40px 32px;
+      width: 100%;
+      max-width: 480px;
+      text-align: center;
+    }
+    h1 {
+      margin: 0 0 28px;
+      font-size: 2.4rem;
+      color: #e8590c;
+    }
+    .categories {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 28px;
+    }
+    .category-btn {
+      border: 2px solid #ffd8a8;
+      background: #fff4e6;
+      color: #e8590c;
+      font-size: 1.05rem;
+      padding: 10px 18px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .category-btn:hover {
+      background: #ffe8cc;
+    }
+    .category-btn.active {
+      background: #e8590c;
+      color: #fff;
+      border-color: #e8590c;
+    }
+    .recommend-btn {
+      width: 100%;
+      border: none;
+      background: #e8590c;
+      color: #fff;
+      font-size: 1.25rem;
+      font-weight: 700;
+      padding: 16px;
+      border-radius: 16px;
+      cursor: pointer;
+      transition: transform 0.1s ease, background 0.15s ease;
+    }
+    .recommend-btn:hover {
+      background: #d9480f;
+    }
+    .recommend-btn:active {
+      transform: scale(0.98);
+    }
+    .result {
+      margin-top: 28px;
+      min-height: 48px;
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #2b2b2b;
+      word-break: keep-all;
+    }
+    .result .menu {
+      color: #e8590c;
+    }
+    .hint {
+      margin-top: 12px;
+      font-size: 0.95rem;
+      color: #868e96;
+    }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <h1>오늘 뭐 먹지?</h1>
+
+    <div class="categories" id="categories">
+      <button type="button" class="category-btn active" data-category="한식">한식</button>
+      <button type="button" class="category-btn" data-category="중식">중식</button>
+      <button type="button" class="category-btn" data-category="일식">일식</button>
+      <button type="button" class="category-btn" data-category="양식">양식</button>
+      <button type="button" class="category-btn" data-category="아무거나">아무거나</button>
+    </div>
+
+    <button type="button" class="recommend-btn" id="recommendBtn">점심 메뉴 추천받기</button>
+
+    <div class="result" id="result"></div>
+    <p class="hint">버튼을 다시 누르면 메뉴를 새로 추천해요!</p>
+  </main>
+
+  <script>
+    const menus = {
+      한식: ["김치찌개", "비빔밥", "불고기", "된장찌개", "제육볶음", "냉면", "삼겹살", "떡볶이"],
+      중식: ["짜장면", "짬뽕", "탕수육", "마파두부", "볶음밥", "양장피", "깐풍기"],
+      일식: ["초밥", "라멘", "돈카츠", "우동", "규동", "가츠동", "덮밥"],
+      양식: ["파스타", "피자", "스테이크", "리조또", "함박스테이크", "샐러드", "햄버거"]
+    };
+
+    let selectedCategory = "한식";
+
+    const categoriesEl = document.getElementById("categories");
+    const recommendBtn = document.getElementById("recommendBtn");
+    const resultEl = document.getElementById("result");
+
+    categoriesEl.addEventListener("click", (e) => {
+      const btn = e.target.closest(".category-btn");
+      if (!btn) return;
+      selectedCategory = btn.dataset.category;
+      document.querySelectorAll(".category-btn").forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+    });
+
+    function pickMenu(category) {
+      let pool;
+      if (category === "아무거나") {
+        pool = Object.values(menus).flat();
+      } else {
+        pool = menus[category];
+      }
+      const index = Math.floor(Math.random() * pool.length);
+      return pool[index];
+    }
+
+    recommendBtn.addEventListener("click", () => {
+      const menu = pickMenu(selectedCategory);
+      resultEl.innerHTML = '오늘의 추천: <span class="menu">' + menu + "</span>";
+    });
+  </script>
+</body>
+</html>
