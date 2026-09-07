@@ -86,6 +86,28 @@
     }
     .result .menu {
       color: #e8590c;
+      display: inline-block;
+    }
+    .result .menu.spinning {
+      color: #f08c00;
+      animation: slot-blur 0.08s linear infinite;
+    }
+    .result .menu.landed {
+      animation: slot-pop 0.35s ease;
+    }
+    @keyframes slot-blur {
+      0% { transform: translateY(-6px); opacity: 0.35; }
+      50% { transform: translateY(0); opacity: 1; }
+      100% { transform: translateY(6px); opacity: 0.35; }
+    }
+    @keyframes slot-pop {
+      0% { transform: scale(0.7); }
+      60% { transform: scale(1.15); }
+      100% { transform: scale(1); }
+    }
+    .recommend-btn:disabled {
+      opacity: 0.7;
+      cursor: default;
     }
     .hint {
       margin-top: 12px;
@@ -134,20 +156,50 @@
       btn.classList.add("active");
     });
 
-    function pickMenu(category) {
-      let pool;
-      if (category === "아무거나") {
-        pool = Object.values(menus).flat();
-      } else {
-        pool = menus[category];
+    function getPool(category) {
+      return category === "아무거나" ? Object.values(menus).flat() : menus[category];
+    }
+
+    let spinning = false;
+
+    function runSlot(category) {
+      const pool = getPool(category);
+      const finalMenu = pool[Math.floor(Math.random() * pool.length)];
+
+      spinning = true;
+      recommendBtn.disabled = true;
+
+      resultEl.innerHTML = '오늘의 추천: <span class="menu spinning" id="slot"></span>';
+      const slotEl = document.getElementById("slot");
+
+      const totalTime = 1600;
+      const start = performance.now();
+
+      function tick(now) {
+        const elapsed = now - start;
+        // 롤링 중에는 무작위 메뉴를 계속 바꿔서 보여줌
+        slotEl.textContent = pool[Math.floor(Math.random() * pool.length)];
+
+        if (elapsed < totalTime) {
+          // 점점 느려지도록 간격을 늘림
+          const progress = elapsed / totalTime;
+          const delay = 60 + progress * progress * 220;
+          setTimeout(() => requestAnimationFrame(tick), delay);
+        } else {
+          slotEl.textContent = finalMenu;
+          slotEl.classList.remove("spinning");
+          slotEl.classList.add("landed");
+          spinning = false;
+          recommendBtn.disabled = false;
+        }
       }
-      const index = Math.floor(Math.random() * pool.length);
-      return pool[index];
+
+      requestAnimationFrame(tick);
     }
 
     recommendBtn.addEventListener("click", () => {
-      const menu = pickMenu(selectedCategory);
-      resultEl.innerHTML = '오늘의 추천: <span class="menu">' + menu + "</span>";
+      if (spinning) return;
+      runSlot(selectedCategory);
     });
   </script>
 </body>
